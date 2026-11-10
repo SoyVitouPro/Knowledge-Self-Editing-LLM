@@ -1,6 +1,58 @@
 # Knowledge-Self-Editing-LLM
 A lightweight toolkit to easily and quickly edit Large Language Model (LLM) knowledge without full retraining. Implements core knowledge self-editing algorithms and pre-computed null-space caching for seamless updates.
 
+## Knowledge self-editing pipeline
+
+![Knowledge self-editing pipeline](figures/knowledge_self_editing_pipeline.png)
+
+This figure summarizes the overall flow of this project. The method is an
+AlphaEdit-style knowledge-editing technique that we are introducing as a
+starting point for further experimentation and optimization.
+
+### Offline stage: build the null-space cache
+
+The offline stage is computed once before editing:
+
+1. Wikipedia activations are collected for the selected decoder layers, currently
+   layers 9 and 10.
+2. The activations are used to form a covariance matrix \(C\).
+3. Singular value decomposition produces \(C = U S V^T\).
+4. The right singular vectors whose singular values satisfy
+   \(\sigma \leq 10^{-2}\) are selected as the approximate null basis \(P\).
+5. The basis is cached on disk. `main.py` only loads the cache; it does not
+   recompute the Wikipedia activations or SVD during each edit.
+
+### Online stage: edit one new fact at a time
+
+For each new fact, the online stage performs the following steps:
+
+1. A key \(k\) is captured from the final token of the fact's prompt.
+2. Target optimization finds a desired activation \(v^*\), producing a residual
+   \(R\) between the current and desired target.
+3. A projected solve uses \(K\), \(R\), and \(P\) to calculate a weight update
+   \(\Delta W\).
+4. The edited model is formed as:
+
+   \[
+   W' = W + \Delta W
+   \]
+
+Because the update is projected into the approximate null space of the
+preservation covariance, it is intended to change the requested behavior while
+minimizing disruption to outputs associated with previously preserved
+knowledge. In practical terms, the goal is to learn the new fact while keeping
+old knowledge as stable as possible.
+
+### Current research direction
+
+This implementation is an experimental starting point rather than a finished
+production system or an exact reproduction of the reference paper. The
+reference research reports a capacity of roughly 3,000 new facts for this type
+of editing setup; that limit should be treated as a research claim to validate
+for this implementation, not as a guarantee. We will use this project to
+measure edit success, locality, and knowledge retention, then improve the
+algorithm based on research findings and experimental results.
+
 ## Folder structure
 
 ```text
