@@ -1,0 +1,27 @@
+{
+  "default_model": "gemma-4-E2B",
+  "models": {
+    "gemma-4-E2B": {
+      "model_id": "google/gemma-4-E2B",
+      "model_class": "AutoModelForMultimodalLM",
+      "device_map": null,
+      "decoder_layers_path": "model.language_model.layers",
+      "mlp_down_proj_path": "mlp.down_proj",
+      "prompt_template": "Question: {question}\nAnswer:",
+      "num_layers": 35,
+      "edit_layers": [9, 10],
+      "cache_dir": "cache/gemma-4-E2B"
+    },
+    "gemma-4-E4B": {
+      "model_id": "google/gemma-4-E4B",
+      "model_class": "AutoModelForMultimodalLM",
+      "device_map": null,
+      "decoder_layers_path": "model.language_model.layers",
+      "mlp_down_proj_path": "mlp.down_proj",
+      "prompt_template": "Question: {question}\nAnswer:",
+      "num_layers": 42,
+      "edit_layers": [12, 13],
+      "cache_dir": "cache/gemma-4-E4B"
+    }
+  }
+}
